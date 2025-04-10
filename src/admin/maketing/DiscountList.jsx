@@ -325,7 +325,9 @@ function DiscountList() {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {discount.products.map((item) => {
+                              {/* {discount.products.map((item) => { */}
+                              {/* Trong JSX, để tránh .map() trên giá trị undefined, bạn cần thêm điều kiện kiểm tra trước khi .map(): */}
+                            {Array.isArray(discount.products) && discount.products.map((item) => {
                                 const product = products.find((p) => p.id === item.productId);
                                 return (
                                   <TableRow key={item.productId}>

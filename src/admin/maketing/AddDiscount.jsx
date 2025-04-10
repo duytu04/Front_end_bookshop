@@ -405,7 +405,7 @@ function AddDiscount() {
 
     try {
       await axios.post('/api/product', discountData);
-      navigate('/admin/discount');
+      navigate('./admin/discount');
     } catch (err) {
       console.error('Lỗi khi gửi dữ liệu:', err);
       setError('Đã xảy ra lỗi khi gửi chương trình khuyến mại');
