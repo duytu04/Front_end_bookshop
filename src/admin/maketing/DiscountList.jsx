@@ -177,229 +177,6 @@
 
 
 
-// mã mới .......................................................
-
-// import React, { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-// import {
-//   Box,
-//   Paper,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   Typography,
-//   Button,
-//   Collapse,
-//   IconButton,
-//   Dialog,
-//   DialogActions,
-//   DialogContent,
-//   DialogContentText,
-//   DialogTitle,
-//   TablePagination,
-// } from '@mui/material';
-// import { ExpandLess, ExpandMore } from '@mui/icons-material';
-
-// function DiscountList() {
-//   const navigate = useNavigate();
-//   const [discounts, setDiscounts] = useState([]);
-//   const [products, setProducts] = useState([]);
-//   const [expandedId, setExpandedId] = useState(null);
-//   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-//   const [page, setPage] = useState(0);
-//   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-//   useEffect(() => {
-//     axios.get('http://localhost:6868/api/discounts')
-//       .then((res) =>
-//         setDiscounts(res.data))
-//       .catch((err) => console.error('Lỗi khi tải discounts:', err));
-
-//     axios.get('http://localhost:6868/api/product')
-//       .then((res) => setProducts(res.data))
-//       .catch((err) => console.error('Lỗi khi tải products:', err));
-//   }, []);
-  
-
-//   const handleEditDiscount = (id) => {
-//     navigate(`/admin/edit-discounts/${id}`);
-//   };
-
-//   const handleDelete = (id) => {
-//     axios.delete(`/api/discount/${id}`)
-//       .then(() => {
-//         setDiscounts(discounts.filter((d) => d.id !== id));
-//         setConfirmDeleteId(null);
-//       })
-//       .catch((err) => console.error('Lỗi khi xóa:', err));
-//   };
-
-//   const handleAddDiscount = () => {
-//     navigate('/admin/add-discount');
-//   };
-
-//   const handleRowClick = (id) => {
-//     setExpandedId(expandedId === id ? null : id);
-//   };
-
-//   const handleChangePage = (event, newPage) => setPage(newPage);
-//   const handleChangeRowsPerPage = (event) => {
-//     setRowsPerPage(+event.target.value);
-//     setPage(0);
-//   };
-
-//   return (
-//     <Box sx={{ mt: 8 }}>
-//       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-//         <Typography variant="h5">Danh sách mã giảm giá</Typography>
-//         <Button variant="contained" color="primary" onClick={handleAddDiscount}>
-//           Thêm mã giảm giá
-//         </Button>
-//       </Box>
-
-//       <TableContainer component={Paper}>
-//         <Table>
-//           <TableHead>
-//             <TableRow sx={{ backgroundColor: '#1976d2' }}>
-//               <TableCell sx={{ color: 'white' }}>ID mã</TableCell>
-//               <TableCell sx={{ color: 'white' }}>Ngày bắt đầu</TableCell>
-//               <TableCell sx={{ color: 'white' }}>Ngày kết thúc</TableCell>
-//               <TableCell sx={{ color: 'white' }}>Chi tiết</TableCell>
-//               <TableCell sx={{ color: 'white' }}>Hành động</TableCell>
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {discounts
-//               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-//               .map((discount) => (
-//                 <React.Fragment key={discount.id}>
-//                   <TableRow
-//                     sx={{
-//                       backgroundColor: expandedId === discount.id ? '#e3f2fd' : 'transparent',
-//                     }}
-//                   >
-//                     <TableCell>{discount.id}</TableCell>
-//                     <TableCell>{discount.dateStart}</TableCell>
-//                     <TableCell>{discount.dateEnd}</TableCell>
-//                     <TableCell>
-//                       <IconButton onClick={() => handleRowClick(discount.id)}>
-//                         {expandedId === discount.id ? <ExpandLess /> : <ExpandMore />}
-//                       </IconButton>
-//                     </TableCell>
-//                     <TableCell>
-//                       <Button
-//                         variant="contained"
-//                         color="primary"
-//                         size="small"
-//                         sx={{ mr: 1 }}
-//                         onClick={() => handleEditDiscount(discount.id)}
-//                       >
-//                         Sửa
-//                       </Button>
-//                       <Button
-//                         variant="contained"
-//                         color="error"
-//                         size="small"
-//                         onClick={() => setConfirmDeleteId(discount.id)}
-//                       >
-//                         Xóa
-//                       </Button>
-//                     </TableCell>
-//                   </TableRow>
-
-//                   <TableRow>
-//                     <TableCell colSpan={5} sx={{ paddingBottom: 0, paddingTop: 0 }}>
-//                       <Collapse in={expandedId === discount.id} timeout="auto" unmountOnExit>
-//                         <Box sx={{ margin: 2 }}>
-//                           <Typography variant="subtitle1" gutterBottom>
-//                             Chi tiết sản phẩm
-//                           </Typography>
-//                           <Table size="small">
-//                             <TableHead>
-//                               <TableRow>
-//                                 <TableCell>ID</TableCell>
-//                                 <TableCell>Tên sản phẩm</TableCell>
-//                                 <TableCell>Tồn kho</TableCell>
-//                                 <TableCell>Giá gốc</TableCell>
-//                                 <TableCell>Giá khuyến mãi</TableCell>
-//                                 <TableCell>Số lượng</TableCell>
-//                               </TableRow>
-//                             </TableHead>
-//                             <TableBody>
-//                               {/* {discount.products.map((item) => { */}
-//                               {/* Trong JSX, để tránh .map() trên giá trị undefined, bạn cần thêm điều kiện kiểm tra trước khi .map(): */}
-//                             {Array.isArray(discount.products) && discount.products.map((item) => {
-//                                 const product = products.find((p) => p.id === item.productId);
-//                                 return (
-//                                   <TableRow key={item.productId}>
-//                                     <TableCell>{item.productId}</TableCell>
-//                                     <TableCell>{product?.name || 'Không xác định'}</TableCell>
-//                                     <TableCell>{product?.stock || '-'}</TableCell>
-//                                     <TableCell>
-//                                       {product
-//                                         ? product.originalPrice.toLocaleString()
-//                                         : '-'}
-//                                     </TableCell>
-//                                     <TableCell>{item.salePrice.toLocaleString()}</TableCell>
-//                                     <TableCell>{item.quantity}</TableCell>
-//                                   </TableRow>
-//                                 );
-//                               })}
-//                             </TableBody>
-//                           </Table>
-//                         </Box>
-//                       </Collapse>
-//                     </TableCell>
-//                   </TableRow>
-//                 </React.Fragment>
-//               ))}
-//           </TableBody>
-//         </Table>
-//         <TablePagination
-//           rowsPerPageOptions={[5, 10, 25]}
-//           component="div"
-//           count={discounts.length}
-//           rowsPerPage={rowsPerPage}
-//           page={page}
-//           onPageChange={handleChangePage}
-//           onRowsPerPageChange={handleChangeRowsPerPage}
-//         />
-//       </TableContainer>
-
-//       {/* Dialog xác nhận xóa */}
-//       <Dialog
-//         open={confirmDeleteId !== null}
-//         onClose={() => setConfirmDeleteId(null)}
-//       >
-//         <DialogTitle>Xác nhận xóa</DialogTitle>
-//         <DialogContent>
-//           <DialogContentText>
-//             Bạn có chắc chắn muốn xóa mã giảm giá này không? Hành động này không thể hoàn tác.
-//           </DialogContentText>
-//         </DialogContent>
-//         <DialogActions>
-//           <Button onClick={() => setConfirmDeleteId(null)}>Hủy</Button>
-//           <Button
-//             onClick={() => handleDelete(confirmDeleteId)}
-//             color="error"
-//             variant="contained"
-//           >
-//             Xóa
-//           </Button>
-//         </DialogActions>
-//       </Dialog>
-//     </Box>
-//   );
-// }
-
-// export default DiscountList;
-
-
-/// mã thêm coment 
 import React, { useEffect, useState } from 'react'; // Import React cùng với các hook useEffect và useState để quản lý trạng thái và side effects
 import { useNavigate } from 'react-router-dom'; // Import hook useNavigate để điều hướng giữa các trang trong ứng dụng React Router
 import axios from 'axios'; // Import thư viện axios để thực hiện các yêu cầu HTTP (GET, DELETE, v.v.)
@@ -436,14 +213,15 @@ function DiscountList() { // Định nghĩa component DiscountList
 
   useEffect(() => { // Hook useEffect để tải dữ liệu khi component được mount
     axios.get('http://localhost:6868/api/discounts') // Gửi yêu cầu GET để lấy danh sách mã giảm giá từ API
-      .then((res) => 
-        setDiscounts(res.data)) // Nếu thành công, cập nhật state discounts với dữ liệu trả về
+      .then((res) =>setDiscounts(res.data)) // Nếu thành công, cập nhật state discounts với dữ liệu trả về
       .catch((err) => console.error('Lỗi khi tải discounts:', err)); // Nếu lỗi, in thông báo lỗi ra console
 
     axios.get('http://localhost:6868/api/product') // Gửi yêu cầu GET để lấy danh sách sản phẩm từ API
       .then((res) => setProducts(res.data)) // Nếu thành công, cập nhật state products với dữ liệu trả về
       .catch((err) => console.error('Lỗi khi tải products:', err)); // Nếu lỗi, in thông báo lỗi ra console
   }, []); // Dependency array rỗng nghĩa là useEffect chỉ chạy một lần khi component mount
+
+ 
 
   const handleEditDiscount = (id) => { // Hàm xử lý khi nhấn nút "Sửa" mã giảm giá
     navigate(`/admin/edit-discounts/${id}`); // Điều hướng đến trang chỉnh sửa với ID tương ứng
@@ -465,6 +243,7 @@ function DiscountList() { // Định nghĩa component DiscountList
   const handleRowClick = (id) => { // Hàm xử lý khi nhấp vào nút mở rộng/thu gọn chi tiết
     setExpandedId(expandedId === id ? null : id); // Nếu dòng đã mở, đóng lại (null), nếu chưa mở, mở ra (set ID)
   };
+ 
 
   const handleChangePage = (event, newPage) => setPage(newPage); // Hàm xử lý khi thay đổi trang trong phân trang
   const handleChangeRowsPerPage = (event) => { // Hàm xử lý khi thay đổi số dòng mỗi trang
@@ -530,7 +309,6 @@ function DiscountList() { // Định nghĩa component DiscountList
                       </Button>
                     </TableCell>
                   </TableRow>
-
                   <TableRow> {/* Dòng chứa chi tiết mở rộng */}
                     <TableCell colSpan={5} sx={{ paddingBottom: 0, paddingTop: 0 }}> {/* Ô trải dài 5 cột */}
                       <Collapse in={expandedId === discount.id} timeout="auto" unmountOnExit> {/* Hiển thị/ẩn chi tiết */}
@@ -552,19 +330,18 @@ function DiscountList() { // Định nghĩa component DiscountList
                             <TableBody>
                               {Array.isArray(discount.products) && discount.products.map((item) => { // Kiểm tra và lặp qua danh sách sản phẩm
                                 const product = products.find((p) => p.id === item.productId); // Tìm thông tin sản phẩm dựa trên productId
+                                
                                 return (
                                   <TableRow key={item.productId}> {/* Dòng cho mỗi sản phẩm */}
                                     <TableCell>{item.productId}</TableCell> {/* Hiển thị ID sản phẩm */}
                                     <TableCell>{product?.name || 'Không xác định'}</TableCell> {/* Hiển thị tên hoặc thông báo nếu không có */}
-                                    <TableCell>{product?.stock || '-'}</TableCell> {/* Hiển thị tồn kho hoặc '-' nếu không có */}
-                                    <TableCell>
-                                      {product
-                                        ? product.originalPrice.toLocaleString() // Định dạng giá gốc với dấu phân cách
-                                        : '-'} {/* Hiển thị giá gốc hoặc '-' nếu không có */}
-                                    </TableCell>
+                                    <TableCell>{product?.quantity || '-'}</TableCell> {/* Hiển thị tồn kho hoặc '-' nếu không có */}
+                                    <TableCell>{product ? product.price.toLocaleString() : '-'}  </TableCell>{/* Hiển thị giá gốc (sử dụng price) */}
+                                 
                                     <TableCell>{item.salePrice.toLocaleString()}</TableCell> {/* Hiển thị giá khuyến mãi với định dạng */}
                                     <TableCell>{item.quantity}</TableCell> {/* Hiển thị số lượng */}
                                   </TableRow>
+                  
                                 );
                               })}
                             </TableBody>
