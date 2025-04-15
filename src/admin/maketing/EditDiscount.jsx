@@ -352,7 +352,7 @@ function EditDiscount() {
       try {
         setLoading(true);
         // Lấy danh sách sản phẩm
-        const productsRes = await axios.get('http://localhost:6868/api/product');
+        const productsRes = await axios.get('http://localhost:6868/api/products');
         setProducts(productsRes.data);
 
         // Lấy chi tiết discount

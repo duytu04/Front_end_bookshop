@@ -596,7 +596,7 @@ function AddDiscount() {
 
   useEffect(() => {
     axios
-      .get('http://localhost:6868/api/product') // gọi API lấy danh sách sản phẩm
+      .get('http://localhost:6868/api/products') // gọi API lấy danh sách sản phẩm
       .then((res) => {
         setProducts(res.data); // lưu vào state products
       })

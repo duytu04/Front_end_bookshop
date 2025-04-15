@@ -211,24 +211,38 @@ function DiscountList() { // Định nghĩa component DiscountList
   const [page, setPage] = useState(0); // State để theo dõi trang hiện tại trong phân trang, khởi tạo là 0
   const [rowsPerPage, setRowsPerPage] = useState(5); // State để theo dõi số dòng mỗi trang, khởi tạo là 5
 
-  useEffect(() => { // Hook useEffect để tải dữ liệu khi component được mount
-    axios.get('http://localhost:6868/api/discounts') // Gửi yêu cầu GET để lấy danh sách mã giảm giá từ API
-      .then((res) =>setDiscounts(res.data)) // Nếu thành công, cập nhật state discounts với dữ liệu trả về
-      .catch((err) => console.error('Lỗi khi tải discounts:', err)); // Nếu lỗi, in thông báo lỗi ra console
-
-    axios.get('http://localhost:6868/api/product') // Gửi yêu cầu GET để lấy danh sách sản phẩm từ API
-      .then((res) => setProducts(res.data)) // Nếu thành công, cập nhật state products với dữ liệu trả về
-      .catch((err) => console.error('Lỗi khi tải products:', err)); // Nếu lỗi, in thông báo lỗi ra console
-  }, []); // Dependency array rỗng nghĩa là useEffect chỉ chạy một lần khi component mount
-
  
+
+
+  useEffect(() => {
+    axios.get('http://localhost:6868/api/discounts')
+      .then((res) => {
+        const transformedDiscounts = res.data.map(d => ({
+          ...d,
+          products: [{ productId: d.product.id, salePrice: d.salePrice, quantity: d.quantity }]
+        }));
+        setDiscounts(transformedDiscounts);
+      })
+      .catch((err) => console.error('Lỗi khi tải discounts:', err));
+
+    axios.get('http://localhost:6868/api/products')
+      .then((res) => 
+        setProducts(res.data))
+      .catch((err) => console.error('Lỗi khi tải products:', err));
+  }, []);
+
+
+
+
+
+
 
   const handleEditDiscount = (id) => { // Hàm xử lý khi nhấn nút "Sửa" mã giảm giá
     navigate(`/admin/edit-discounts/${id}`); // Điều hướng đến trang chỉnh sửa với ID tương ứng
   };
 
   const handleDelete = (id) => { // Hàm xử lý khi xác nhận xóa mã giảm giá
-    axios.delete(`/api/discount/${id}`) // Gửi yêu cầu DELETE đến API để xóa mã giảm giá với ID tương ứng
+    axios.delete(`http://localhost:6868/api/discounts/${id}`) // Gửi yêu cầu DELETE đến API để xóa mã giảm giá với ID tương ứng
       .then(() => { // Nếu thành công
         setDiscounts(discounts.filter((d) => d.id !== id)); // Lọc bỏ mã giảm giá vừa xóa khỏi state discounts
         setConfirmDeleteId(null); // Đóng hộp thoại xác nhận bằng cách đặt lại confirmDeleteId về null
@@ -243,7 +257,7 @@ function DiscountList() { // Định nghĩa component DiscountList
   const handleRowClick = (id) => { // Hàm xử lý khi nhấp vào nút mở rộng/thu gọn chi tiết
     setExpandedId(expandedId === id ? null : id); // Nếu dòng đã mở, đóng lại (null), nếu chưa mở, mở ra (set ID)
   };
- 
+
 
   const handleChangePage = (event, newPage) => setPage(newPage); // Hàm xử lý khi thay đổi trang trong phân trang
   const handleChangeRowsPerPage = (event) => { // Hàm xử lý khi thay đổi số dòng mỗi trang
@@ -328,22 +342,30 @@ function DiscountList() { // Định nghĩa component DiscountList
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {Array.isArray(discount.products) && discount.products.map((item) => { // Kiểm tra và lặp qua danh sách sản phẩm
-                                const product = products.find((p) => p.id === item.productId); // Tìm thông tin sản phẩm dựa trên productId
-                                
+                              {discount.product ? (() => {
+                                const item = {
+                                  productId: discount.product.id,
+                                  name: discount.product.name,
+                                  stockquantity: discount.product.quantity,
+                                  salePrice: discount.salePrice,
+                                  quantity: discount.quantity
+                                };
+                                const product = products.find((p) => p.id === item.productId);
                                 return (
-                                  <TableRow key={item.productId}> {/* Dòng cho mỗi sản phẩm */}
-                                    <TableCell>{item.productId}</TableCell> {/* Hiển thị ID sản phẩm */}
-                                    <TableCell>{product?.name || 'Không xác định'}</TableCell> {/* Hiển thị tên hoặc thông báo nếu không có */}
-                                    <TableCell>{product?.quantity || '-'}</TableCell> {/* Hiển thị tồn kho hoặc '-' nếu không có */}
-                                    <TableCell>{product ? product.price.toLocaleString() : '-'}  </TableCell>{/* Hiển thị giá gốc (sử dụng price) */}
-                                 
-                                    <TableCell>{item.salePrice.toLocaleString()}</TableCell> {/* Hiển thị giá khuyến mãi với định dạng */}
-                                    <TableCell>{item.quantity}</TableCell> {/* Hiển thị số lượng */}
+                                  <TableRow key={item.productId}>
+                                    <TableCell>{item.productId}</TableCell>
+                                    <TableCell>{product?.name || 'Không xác định'}</TableCell>
+                                    <TableCell>{product?.quantity || '-'}</TableCell>
+                                    <TableCell>{product?.price != null ? product.price.toLocaleString() : '-'}</TableCell>
+                                    <TableCell>{item.salePrice.toLocaleString()}</TableCell>
+                                    <TableCell>{item.quantity}</TableCell>
                                   </TableRow>
-                  
                                 );
-                              })}
+                              })() : (
+                                <TableRow>
+                                  <TableCell colSpan={6}>Không có sản phẩm khuyến mãi</TableCell>
+                                </TableRow>
+                              )}
                             </TableBody>
                           </Table>
                         </Box>
