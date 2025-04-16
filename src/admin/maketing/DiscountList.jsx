@@ -238,7 +238,7 @@ function DiscountList() { // Định nghĩa component DiscountList
 
 
   const handleEditDiscount = (id) => { // Hàm xử lý khi nhấn nút "Sửa" mã giảm giá
-    navigate(`/admin/edit-discounts/${id}`); // Điều hướng đến trang chỉnh sửa với ID tương ứng
+    navigate(`/admin/edit-discount/${id}`); // Điều hướng đến trang chỉnh sửa với ID tương ứng
   };
 
   const handleDelete = (id) => { // Hàm xử lý khi xác nhận xóa mã giảm giá
@@ -265,7 +265,7 @@ function DiscountList() { // Định nghĩa component DiscountList
     setPage(0); // Đặt lại trang về 0 khi thay đổi số dòng mỗi trang
   };
 
-  return ( // Phần render giao diện của component
+  return ( 
     <Box sx={{ mt: 8 }}> {/* Container chính với margin-top 8 đơn vị */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}> {/* Header với tiêu đề và nút thêm */}
         <Typography variant="h5">Danh sách mã giảm giá</Typography> {/* Tiêu đề "Danh sách mã giảm giá" */}
