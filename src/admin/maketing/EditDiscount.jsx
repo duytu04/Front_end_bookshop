@@ -1,312 +1,5 @@
-
-
-
-// import React, { useState, useEffect } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-// import {
-//   Box,
-//   Paper,
-//   Typography,
-//   TextField,
-//   Button,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   Alert,
-//   CircularProgress,
-// } from '@mui/material';
-// import Autocomplete from '@mui/material/Autocomplete';
-
-// function EditDiscount() {
-//   const { discountId } = useParams();
-//   const navigate = useNavigate();
-
-//   const [discount, setDiscount] = useState(null);
-//   const [products, setProducts] = useState([]);
-//   const [selectedProducts, setSelectedProducts] = useState([]);
-//   const [dateStart, setDateStart] = useState('');
-//   const [dateEnd, setDateEnd] = useState('');
-//   const [error, setError] = useState('');
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true);
-//         const productsRes = await axios.get('http://localhost:6868/api/products');
-//         setProducts(productsRes.data);
-//         const discountRes = await axios.get(`http://localhost:6868/api/discounts/${discountId}`);
-//         const discountData = discountRes.data;
-
-//         setDiscount(discountData);
-//         setDateStart(discountData.dateStart || '');
-//         setDateEnd(discountData.dateEnd || '');
-//         setSelectedProducts(
-//           discountData.products?.map((p) => ({
-//             ...productsRes.data.find((prod) => prod.id === p.productId),
-//             salePrice: p.salePrice.toString(),
-//             quantity: p.quantity.toString(),
-//           })) || []
-//         );
-//       } catch (err) {
-//         console.error('Lỗi khi tải dữ liệu:', err);
-//         setError('Không thể tải dữ liệu mã giảm giá hoặc sản phẩm');
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchData();
-//   }, [discountId]);
-
-//   const handleDateChange = (e) => {
-//     const { name, value } = e.target;
-//     if (name === 'dateStart') setDateStart(value);
-//     if (name === 'dateEnd') setDateEnd(value);
-//     setError('');
-//   };
-
-//   const handleProductChange = (event, newValue) => {
-//     if (newValue && !selectedProducts.some((p) => p.id === newValue.id)) {
-//       setSelectedProducts((prev) => [
-//         ...prev,
-//         { ...newValue, salePrice: '', quantity: '' },
-//       ]);
-//     }
-//   };
-
-//   const handleProductDetailChange = (id, field, value) => {
-//     setSelectedProducts((prev) =>
-//       prev.map((product) => {
-//         if (product.id === id) {
-//           if (field === 'quantity') {
-//             const quantity = parseInt(value) || 0;
-//             if (quantity > product.quantity) {
-//               setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
-//               return { ...product, quantity: product.quantity.toString() };
-//             }
-//           }
-//           if (field === 'salePrice') {
-//             const salePrice = parseFloat(value) || 0;
-//             if (salePrice > product.Price) {
-//               setError(`Giá khuyến mại không được vượt quá giá gốc (${product.Price.toLocaleString()} VNĐ)`);
-//               return { ...product, salePrice: product.Price.toString() };
-//             }
-//           }
-//           return { ...product, [field]: value };
-//         }
-//         return product;
-//       })
-//     );
-//   };
-
-//   const handleRemoveProduct = (id) => {
-//     setSelectedProducts((prev) => prev.filter((product) => product.id !== id));
-//   };
-
-//   const isDateValid = () => {
-//     if (!dateStart || !dateEnd) return false;
-//     const start = new Date(dateStart);
-//     const end = new Date(dateEnd);
-//     const diffInDays = (end - start) / (1000 * 60 * 60 * 24);
-//     return diffInDays >= 1;
-//   };
-
-//   const isProductsValid = () => {
-//     return selectedProducts.every(
-//       (p) =>
-//         p.salePrice !== '' &&
-//         p.quantity !== '' &&
-//         parseFloat(p.salePrice) <= p.originalPrice &&
-//         parseInt(p.quantity) > 0
-//     );
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!isDateValid()) {
-//       setError('Ngày kết thúc phải lớn hơn ngày bắt đầu ít nhất 1 ngày');
-//       return;
-//     }
-//     if (!isProductsValid()) {
-//       setError('Vui lòng điền đầy đủ giá và số lượng hợp lệ cho tất cả sản phẩm');
-//       return;
-//     }
-//     const discountData = {
-//       dateStart,
-//       dateEnd,
-//       products: selectedProducts.map(({ id, salePrice, quantity }) => ({
-//         productId: id,
-//         salePrice: parseFloat(salePrice) || 0,
-//         quantity: parseInt(quantity) || 0,
-//       })),
-//     };
-//     try {
-//       await axios.put(`http://localhost:6868/api/discounts/${discountId}`, discountData);
-//       console.log('Cập nhật discount thành công:', discountData);
-//       navigate('/admin/discount');
-//     } catch (err) {
-//       console.error('Lỗi khi cập nhật discount:', err);
-//       setError('Không thể cập nhật mã giảm giá. Vui lòng thử lại.');
-//     }
-//   };
-
-//   if (loading) {
-//     return (
-//       <Box sx={{ mt: 8, textAlign: 'center' }}>
-//         <CircularProgress />
-//       </Box>
-//     );
-//   }
-
-//   if (!discount?.id) {
-//     return (
-//       <Box sx={{ mt: 8 }}>
-//         <Typography variant="h6">Không tìm thấy mã giảm giá</Typography>
-//       </Box>
-//     );
-//   }
-
-//   return (
-//     <Box sx={{ mt: 8 }}>
-//       <Typography variant="h5" gutterBottom>
-//         Chỉnh sửa chương trình khuyến mại #{discountId}
-//       </Typography>
-//       <Paper sx={{ p: 3 }}>
-//         <Box component="form" onSubmit={handleSubmit}>
-//           <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-//             <TextField
-//               label="Ngày bắt đầu"
-//               name="dateStart"
-//               type="date"
-//               value={dateStart}
-//               onChange={handleDateChange}
-//               InputLabelProps={{ shrink: true }}
-//               required
-//               fullWidth
-//             />
-//             <TextField
-//               label="Ngày kết thúc"
-//               name="dateEnd"
-//               type="date"
-//               value={dateEnd}
-//               onChange={handleDateChange}
-//               InputLabelProps={{ shrink: true }}
-//               required
-//               fullWidth
-//             />
-//           </Box>
-
-//           {error && (
-//             <Alert severity="error" sx={{ mb: 2 }}>
-//               {error}
-//             </Alert>
-//           )}
-
-//           <Autocomplete
-//             options={products.filter((p) => !selectedProducts.some((sp) => sp.id === p.id))}
-//             getOptionLabel={(option) => `${option.id} - ${option.name}`}
-//             filterOptions={(options, { inputValue }) => {
-//               const input = inputValue.toLowerCase();
-//               return options.filter(
-//                 (option) =>
-//                   option.name.toLowerCase().includes(input) ||
-//                   option.id.toString().includes(input)
-//               );
-//             }}
-//             renderOption={(props, option) => (
-//               <li {...props}>
-//                 {option.id} - {option.name} (Tồn kho: {option.quantity}, Giá gốc: {option.Price.toLocaleString()} VNĐ)
-//               </li>
-//             )}
-//             onChange={handleProductChange}
-//             renderInput={(params) => (
-//               <TextField
-//                 {...params}
-//                 label="Thêm sản phẩm"
-//                 placeholder="Gõ ID hoặc tên sản phẩm"
-//                 variant="outlined"
-//                 margin="normal"
-//                 fullWidth
-//                 sx={{ mb: 2 }}
-//               />
-//             )}
-//             fullWidth
-//           />
-
-//           <TableContainer component={Paper}>
-//             <Table>
-//               <TableHead>
-//                 <TableRow>
-//                   <TableCell>Tên sản phẩm</TableCell>
-//                   <TableCell>Giá gốc</TableCell>
-//                   <TableCell>Giá khuyến mãi</TableCell>
-//                   <TableCell>Số lượng</TableCell>
-//                   <TableCell>Tồn kho</TableCell>
-//                   <TableCell>Thao tác</TableCell>
-//                 </TableRow>
-//               </TableHead>
-//               <TableBody>
-//                 {selectedProducts.map((product) => (
-//                   <TableRow key={product.id}>
-//                     <TableCell>{product.name}</TableCell>
-//                     <TableCell>{product.Price.toLocaleString()} VNĐ</TableCell>
-//                     <TableCell>
-//                       <TextField
-//                         type="number"
-//                         value={product.salePrice}
-//                         onChange={(e) =>
-//                           handleProductDetailChange(product.id, 'salePrice', e.target.value)
-//                         }
-//                         inputProps={{ min: 0 }}
-//                         size="small"
-//                       />
-//                     </TableCell>
-//                     <TableCell>
-//                       <TextField
-//                         type="number"
-//                         value={product.quantity}
-//                         onChange={(e) =>
-//                           handleProductDetailChange(product.id, 'quantity', e.target.value)
-//                         }
-//                         inputProps={{ min: 0, max: product.quantity }}
-//                         size="small"
-//                       />
-//                     </TableCell>
-//                     <TableCell>{product.quantity}</TableCell>
-//                     <TableCell>
-//                       <Button
-//                         variant="outlined"
-//                         color="error"
-//                         onClick={() => handleRemoveProduct(product.id)}
-//                       >
-//                         Xóa
-//                       </Button>
-//                     </TableCell>
-//                   </TableRow>
-//                 ))}
-//               </TableBody>
-//             </Table>
-//           </TableContainer>
-
-//           <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-//             Lưu thay đổi
-//           </Button>
-//         </Box>
-//       </Paper>
-//     </Box>
-//   );
-// }
-
-// export default EditDiscount;
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   Box,
   Paper,
@@ -320,175 +13,201 @@ import {
   TableHead,
   TableRow,
   Alert,
-  CircularProgress,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import axios from 'axios';
 
 function EditDiscount() {
   const { discountId } = useParams();
   const navigate = useNavigate();
-
-  const [discount, setDiscount] = useState(null);
+  const [discount, setDiscount] = useState({
+    dateStart: '',
+    dateEnd: '',
+    discountProducts: []
+  });
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [dateStart, setDateStart] = useState('');
-  const [dateEnd, setDateEnd] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Kiểm tra discountId hợp lệ
+    if (!discountId || isNaN(parseInt(discountId))) {
+      setError('ID mã giảm giá không hợp lệ');
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const productsRes = await axios.get('http://localhost:6868/api/products');
-        console.log('Raw products data:', productsRes.data);
-        const normalizedProducts = productsRes.data
-          .filter((product) => product && product.id && product.name)
-          .map((product) => ({
-            id: product.id,
-            name: product.name,
-            price: product.price || product.Price || product.originalPrice || 0,
-            stock: product.quantity || product.stock || 0,
-          }));
-        console.log('Normalized products:', normalizedProducts);
-        setProducts(normalizedProducts);
+        // Lấy danh sách sản phẩm
+        const productResponse = await axios.get('http://localhost:6868/api/product');
+        const productList = productResponse.data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          stock: p.quantity, // Tồn kho thực tế từ entity_product
+          originalPrice: p.price
+        }));
+        setProducts(productList);
 
-        const discountRes = await axios.get(`http://localhost:6868/api/discounts/${discountId}`);
-        console.log('Discount data:', discountRes.data);
-        const discountData = discountRes.data;
-        setDiscount(discountData);
-        setDateStart(discountData.dateStart || '');
-        setDateEnd(discountData.dateEnd || '');
-        setSelectedProducts(
-          discountData.products?.map((p) => {
-            const product = normalizedProducts.find((prod) => prod.id === p.productId);
-            if (!product) {
-              console.warn(`Không tìm thấy sản phẩm với ID ${p.productId}`);
-              return null;
-            }
-            return {
-              ...product,
-              salePrice: p.salePrice ? p.salePrice.toString() : '',
-              quantity: p.quantity ? p.quantity.toString() : '',
-            };
-          }).filter(Boolean) || []
-        );
+        // Lấy chi tiết mã giảm giá
+        const discountResponse = await axios.get(`http://localhost:6868/api/discounts/${discountId}`);
+        const data = discountResponse.data;
+        if (!data) {
+          throw new Error(`Mã giảm giá #${discountId} không tồn tại`);
+        }
+
+        // Ánh xạ discountProducts, lấy stock từ products
+        const discountProducts = data.discountProducts.map((dp) => {
+          const product = productList.find((p) => p.id === dp.productId);
+          return {
+            id: dp.productId,
+            name: dp.name,
+            stock: product ? product.stock : 0, // Tồn kho từ products
+            originalPrice: dp.price,
+            salePrice: dp.salePrice.toString(),
+            quantity: dp.quantity.toString() // Số lượng khuyến mại
+          };
+        });
+
+        setDiscount({
+          dateStart: data.dateStart,
+          dateEnd: data.dateEnd,
+          discountProducts
+        });
       } catch (err) {
-        console.error('Lỗi khi tải dữ liệu:', err);
-        setError('Không thể tải dữ liệu mã giảm giá hoặc sản phẩm');
+        if (err.response?.status === 404) {
+          setError(`Mã giảm giá #${discountId} không tồn tại.`);
+        } else {
+          setError(err.response?.data || 'Lỗi khi tải dữ liệu.');
+        }
+        console.error('Lỗi khi lấy dữ liệu:', err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [discountId]);
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'dateStart') setDateStart(value);
-    if (name === 'dateEnd') setDateEnd(value);
+    setDiscount(prev => ({ ...prev, [name]: value }));
     setError('');
   };
 
-  const handleProductChange = (event, newValue) => {
-    if (newValue && !selectedProducts.some((p) => p.id === newValue.id)) {
-      setSelectedProducts((prev) => [
-        ...prev,
-        { ...newValue, salePrice: '', quantity: '' },
-      ]);
-    }
+  const handleProductChange = (event, newValues) => {
+    const updatedProducts = newValues.map((newValue) => {
+      const existingProduct = discount.discountProducts.find((p) => p.id === newValue.id);
+      return existingProduct || { ...newValue, salePrice: '', quantity: '' };
+    });
+    setDiscount(prev => ({ ...prev, discountProducts: updatedProducts }));
+    setError('');
   };
 
   const handleProductDetailChange = (id, field, value) => {
-    setSelectedProducts((prev) =>
-      prev.map((product) => {
+    setDiscount(prev => {
+      const newProducts = prev.discountProducts.map((product) => {
         if (product.id === id) {
           if (field === 'quantity') {
             const quantity = parseInt(value) || 0;
-            const maxStock = product.stock || 0;
-            if (quantity > maxStock) {
-              setError(`Số lượng không được vượt quá tồn kho (${maxStock})`);
-              return { ...product, quantity: maxStock.toString() };
+            if (quantity > product.stock) {
+              setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
+              return { ...product, quantity: product.stock.toString() };
             }
           }
           if (field === 'salePrice') {
             const salePrice = parseFloat(value) || 0;
-            const maxPrice = product.price || 0;
-            if (salePrice > maxPrice) {
-              setError(`Giá khuyến mại không được vượt quá giá gốc (${maxPrice.toLocaleString('vi-VN')} VNĐ)`);
-              return { ...product, salePrice: maxPrice.toString() };
+            if (salePrice > product.originalPrice) {
+              setError(
+                `Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`
+              );
+              return { ...product, salePrice: product.originalPrice.toString() };
             }
           }
           return { ...product, [field]: value };
         }
         return product;
-      })
-    );
+      });
+      return { ...prev, discountProducts: newProducts };
+    });
   };
 
   const handleRemoveProduct = (id) => {
-    setSelectedProducts((prev) => prev.filter((product) => product.id !== id));
+    setDiscount(prev => ({
+      ...prev,
+      discountProducts: prev.discountProducts.filter((p) => p.id !== id)
+    }));
+    setError('');
   };
 
   const isDateValid = () => {
-    if (!dateStart || !dateEnd) return false;
-    const start = new Date(dateStart);
-    const end = new Date(dateEnd);
-    const diffInDays = (end - start) / (1000 * 60 * 60 * 24);
-    return diffInDays >= 1;
+    if (!discount.dateStart || !discount.dateEnd) return false;
+    const start = new Date(discount.dateStart);
+    const end = new Date(discount.dateEnd);
+    return end >= start;
   };
 
   const isProductsValid = () => {
-    return selectedProducts.every(
-      (p) =>
-        p.salePrice !== '' &&
-        p.quantity !== '' &&
-        parseFloat(p.salePrice) <= (p.price || 0) &&
-        parseInt(p.quantity) > 0
+    return (
+      discount.discountProducts.length > 0 &&
+      discount.discountProducts.every(
+        (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
+      )
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!isDateValid()) {
-      setError('Ngày kết thúc phải lớn hơn ngày bắt đầu ít nhất 1 ngày');
+      setError('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu');
       return;
     }
+
     if (!isProductsValid()) {
-      setError('Vui lòng điền đầy đủ giá và số lượng hợp lệ cho tất cả sản phẩm');
+      setError('Vui lòng chọn ít nhất một sản phẩm và điền đầy đủ giá, số lượng khuyến mại');
       return;
     }
+
     const discountData = {
-      dateStart,
-      dateEnd,
-      products: selectedProducts.map(({ id, salePrice, quantity }) => ({
-        productId: id,
-        salePrice: parseFloat(salePrice) || 0,
-        quantity: parseInt(quantity) || 0,
-      })),
+      dateCreate: new Date().toISOString().split('T')[0],
+      dateStart: discount.dateStart,
+      dateEnd: discount.dateEnd,
+      discountProducts: discount.discountProducts.map((p) => ({
+        productId: p.id,
+        salePrice: parseFloat(p.salePrice),
+        quantity: parseInt(p.quantity)
+      }))
     };
+
     try {
       await axios.put(`http://localhost:6868/api/discounts/${discountId}`, discountData);
-      console.log('Cập nhật discount thành công:', discountData);
       navigate('/admin/discount');
     } catch (err) {
-      console.error('Lỗi khi cập nhật discount:', err);
-      setError('Không thể cập nhật mã giảm giá. Vui lòng thử lại.');
+      if (err.response?.status === 404) {
+        setError(`Mã giảm giá #${discountId} không tồn tại.`);
+      } else {
+        setError(err.response?.data || 'Lỗi khi cập nhật mã giảm giá.');
+      }
+      console.error('Lỗi khi cập nhật mã giảm giá:', err);
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ mt: 8, textAlign: 'center' }}>
-        <CircularProgress />
+      <Box sx={{ mt: 8 }}>
+        <Typography variant="h6">Đang tải...</Typography>
       </Box>
     );
   }
 
-  if (!discount?.id) {
+  if (error) {
     return (
       <Box sx={{ mt: 8 }}>
-        <Typography variant="h6">Không tìm thấy mã giảm giá</Typography>
+        <Alert severity="error">{error}</Alert>
+        <Button variant="contained" onClick={() => navigate('/admin/discount')} sx={{ mt: 2 }}>
+          Quay lại
+        </Button>
       </Box>
     );
   }
@@ -505,7 +224,7 @@ function EditDiscount() {
               label="Ngày bắt đầu"
               name="dateStart"
               type="date"
-              value={dateStart}
+              value={discount.dateStart}
               onChange={handleDateChange}
               InputLabelProps={{ shrink: true }}
               required
@@ -515,7 +234,7 @@ function EditDiscount() {
               label="Ngày kết thúc"
               name="dateEnd"
               type="date"
-              value={dateEnd}
+              value={discount.dateEnd}
               onChange={handleDateChange}
               InputLabelProps={{ shrink: true }}
               required
@@ -530,105 +249,111 @@ function EditDiscount() {
           )}
 
           <Autocomplete
-            options={products.filter((p) => !selectedProducts.some((sp) => sp.id === p.id))}
-            getOptionLabel={(option) => (option.id && option.name ? `${option.id} - ${option.name}` : 'Sản phẩm không hợp lệ')}
+            multiple
+            options={products}
+            getOptionLabel={(option) => `${option.id} - ${option.name}`}
             filterOptions={(options, { inputValue }) => {
               const input = inputValue.toLowerCase();
               return options.filter(
                 (option) =>
-                  (option.name && option.name.toLowerCase().includes(input)) ||
-                  (option.id && option.id.toString().includes(input))
+                  option.name.toLowerCase().includes(input) ||
+                  option.id.toString().includes(input)
               );
             }}
-            renderOption={(props, option) => {
-              if (!option || !option.id || !option.name) {
-                return <li {...props}>Sản phẩm không hợp lệ</li>;
-              }
-              return (
-                <li {...props}>
-                  {option.id} - {option.name} (Tồn kho: {option.stock || 0}, Giá gốc: {(option.price || 0).toLocaleString('vi-VN')} VNĐ)
-                </li>
-              );
-            }}
+            renderOption={(props, option) => (
+              <li {...props}>
+                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
+              </li>
+            )}
             onChange={handleProductChange}
+            value={discount.discountProducts}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Thêm sản phẩm"
+                label="Chọn sản phẩm"
                 placeholder="Gõ ID hoặc tên sản phẩm"
-                variant="outlined"
                 margin="normal"
-                fullWidth
-                sx={{ mb: 2 }}
               />
             )}
             fullWidth
           />
 
-          {selectedProducts.length === 0 && (
-            <Typography sx={{ mt: 2, color: 'text.secondary' }}>
-              Chưa có sản phẩm nào được chọn. Vui lòng thêm sản phẩm từ ô tìm kiếm.
-            </Typography>
+          {discount.discountProducts.length > 0 && (
+            <TableContainer sx={{ mt: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Tên sản phẩm</TableCell>
+                    <TableCell>Tồn kho</TableCell>
+                    <TableCell>Giá gốc (VNĐ)</TableCell>
+                    <TableCell>Giá khuyến mại (VNĐ)</TableCell>
+                    <TableCell>Số lượng khuyến mại</TableCell>
+                    <TableCell>Hành động</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {discount.discountProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.id}</TableCell>
+                      <TableCell>{product.name}</TableCell>
+                      <TableCell>{product.stock}</TableCell>
+                      <TableCell>{product.originalPrice.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <TextField
+                          type="number"
+                          value={product.salePrice}
+                          onChange={(e) =>
+                            handleProductDetailChange(product.id, 'salePrice', e.target.value)
+                          }
+                          size="small"
+                          required
+                          inputProps={{ min: 0, max: product.originalPrice }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          type="number"
+                          value={product.quantity}
+                          onChange={(e) =>
+                            handleProductDetailChange(product.id, 'quantity', e.target.value)
+                          }
+                          size="small"
+                          required
+                          inputProps={{ min: 0, max: product.stock }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          onClick={() => handleRemoveProduct(product.id)}
+                        >
+                          Xóa
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
 
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Tên sản phẩm</TableCell>
-                  <TableCell>Giá gốc</TableCell>
-                  <TableCell>Giá khuyến mãi</TableCell>
-                  <TableCell>Số lượng</TableCell>
-                  <TableCell>Tồn kho</TableCell>
-                  <TableCell>Thao tác</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedProducts.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.name}</TableCell>
-                    <TableCell>{(product.price || 0).toLocaleString('vi-VN')} VNĐ</TableCell>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        value={product.salePrice}
-                        onChange={(e) =>
-                          handleProductDetailChange(product.id, 'salePrice', e.target.value)
-                        }
-                        inputProps={{ min: 0 }}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        value={product.quantity}
-                        onChange={(e) =>
-                          handleProductDetailChange(product.id, 'quantity', e.target.value)
-                        }
-                        inputProps={{ min: 0, max: product.stock || 0 }}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{product.stock || 0}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleRemoveProduct(product.id)}
-                      >
-                        Xóa
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-            Lưu thay đổi
-          </Button>
+          <Box sx={{ mt: 3 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ mr: 2 }}
+              disabled={discount.discountProducts.length === 0}
+            >
+              Lưu
+            </Button>
+            <Button variant="outlined" onClick={() => navigate('/admin/discount')}>
+              Hủy
+            </Button>
+          </Box>
         </Box>
       </Paper>
     </Box>
@@ -636,3 +361,366 @@ function EditDiscount() {
 }
 
 export default EditDiscount;
+
+// import React, { useState, useEffect } from 'react';
+// import { useParams, useNavigate } from 'react-router-dom';
+// import {
+//   Box,
+//   Paper,
+//   Typography,
+//   TextField,
+//   Button,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   Alert,
+// } from '@mui/material';
+// import Autocomplete from '@mui/material/Autocomplete';
+// import axios from 'axios';
+
+// function EditDiscount() {
+//   const { discountId } = useParams();
+//   const navigate = useNavigate();
+//   const [discount, setDiscount] = useState({
+//     dateStart: '',
+//     dateEnd: '',
+//     discountProducts: []
+//   });
+//   const [products, setProducts] = useState([]);
+//   const [error, setError] = useState('');
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     // Kiểm tra discountId hợp lệ
+//     if (!discountId || isNaN(parseInt(discountId))) {
+//       setError('ID mã giảm giá không hợp lệ');
+//       setLoading(false);
+//       return;
+//     }
+
+//     setLoading(true);
+//     // Lấy danh sách sản phẩm
+//     axios
+//       .get('http://localhost:6868/api/product')
+//       .then((response) => {
+//         setProducts(
+//           response.data.map((p) => ({
+//             id: p.id,
+//             name: p.name,
+//             stock: p.quantity,
+//             originalPrice: p.price
+//           }))
+//         );
+//       })
+//       .catch((err) => {
+//         setError('Không thể tải danh sách sản phẩm');
+//         console.error('Lỗi khi lấy sản phẩm:', err);
+//       });
+
+//     // Lấy chi tiết mã giảm giá
+//     axios
+//       .get(`http://localhost:6868/api/discounts/${discountId}`)
+//       .then((response) => {
+//         const data = response.data;
+//         if (!data) {
+//           throw new Error(`Mã giảm giá #${discountId} không tồn tại`);
+//         }
+//         setDiscount({
+//           dateStart: data.dateStart,
+//           dateEnd: data.dateEnd,
+//           discountProducts: data.discountProducts.map((dp) => ({
+//             id: dp.productId,
+//             name: dp.name,
+//             stock: dp.quantity, // Tạm dùng quantity từ discount_product
+//             originalPrice: dp.price,
+//             salePrice: dp.salePrice.toString(),
+//             quantity: dp.quantity.toString()
+//           }))
+//         });
+//       })
+//       .catch((err) => {
+//         if (err.response?.status === 404) {
+//           setError(`Mã giảm giá #${discountId} không tồn tại.`);
+//         } else {
+//           setError(err.response?.data || 'Lỗi khi tải mã giảm giá.');
+//         }
+//         console.error('Lỗi khi lấy mã giảm giá:', err);
+//       })
+//       .finally(() => setLoading(false));
+//   }, [discountId]);
+
+//   const handleDateChange = (e) => {
+//     const { name, value } = e.target;
+//     setDiscount(prev => ({ ...prev, [name]: value }));
+//     setError('');
+//   };
+
+//   const handleProductChange = (event, newValues) => {
+//     const updatedProducts = newValues.map((newValue) => {
+//       const existingProduct = discount.discountProducts.find((p) => p.id === newValue.id);
+//       return existingProduct || { ...newValue, salePrice: '', quantity: '' };
+//     });
+//     setDiscount(prev => ({ ...prev, discountProducts: updatedProducts }));
+//     setError('');
+//   };
+
+//   const handleProductDetailChange = (id, field, value) => {
+//     setDiscount(prev => {
+//       const newProducts = prev.discountProducts.map((product) => {
+//         if (product.id === id) {
+//           if (field === 'quantity') {
+//             const quantity = parseInt(value) || 0;
+//             if (quantity > product.stock) {
+//               setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
+//               return { ...product, quantity: product.stock.toString() };
+//             }
+//           }
+//           if (field === 'salePrice') {
+//             const salePrice = parseFloat(value) || 0;
+//             if (salePrice > product.originalPrice) {
+//               setError(
+//                 `Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`
+//               );
+//               return { ...product, salePrice: product.originalPrice.toString() };
+//             }
+//           }
+//           return { ...product, [field]: value };
+//         }
+//         return product;
+//       });
+//       return { ...prev, discountProducts: newProducts };
+//     });
+//   };
+
+//   const handleRemoveProduct = (id) => {
+//     setDiscount(prev => ({
+//       ...prev,
+//       discountProducts: prev.discountProducts.filter((p) => p.id !== id)
+//     }));
+//     setError('');
+//   };
+
+//   const isDateValid = () => {
+//     if (!discount.dateStart || !discount.dateEnd) return false;
+//     const start = new Date(discount.dateStart);
+//     const end = new Date(discount.dateEnd);
+//     return end >= start;
+//   };
+
+//   const isProductsValid = () => {
+//     return (
+//       discount.discountProducts.length > 0 &&
+//       discount.discountProducts.every(
+//         (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
+//       )
+//     );
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!isDateValid()) {
+//       setError('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu');
+//       return;
+//     }
+
+//     if (!isProductsValid()) {
+//       setError('Vui lòng chọn ít nhất một sản phẩm và điền đầy đủ giá, số lượng khuyến mại');
+//       return;
+//     }
+
+//     const discountData = {
+//       dateCreate: new Date().toISOString().split('T')[0],
+//       dateStart: discount.dateStart,
+//       dateEnd: discount.dateEnd,
+//       discountProducts: discount.discountProducts.map((p) => ({
+//         productId: p.id,
+//         salePrice: parseFloat(p.salePrice),
+//         quantity: parseInt(p.quantity)
+//       }))
+//     };
+
+//     try {
+//       await axios.put(`http://localhost:6868/api/discounts/${discountId}`, discountData);
+//       navigate('/admin/discount');
+//     } catch (err) {
+//       if (err.response?.status === 404) {
+//         setError(`Mã giảm giá #${discountId} không tồn tại.`);
+//       } else {
+//         setError(err.response?.data || 'Lỗi khi cập nhật mã giảm giá.');
+//       }
+//       console.error('Lỗi khi cập nhật mã giảm giá:', err);
+//     }
+//   };
+
+//   if (loading) {
+//     return (
+//       <Box sx={{ mt: 8 }}>
+//         <Typography variant="h6">Đang tải...</Typography>
+//       </Box>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <Box sx={{ mt: 8 }}>
+//         <Alert severity="error">{error}</Alert>
+//         <Button variant="contained" onClick={() => navigate('/admin/discount')} sx={{ mt: 2 }}>
+//           Quay lại
+//         </Button>
+//       </Box>
+//     );
+//   }
+
+//   return (
+//     <Box sx={{ mt: 8 }}>
+//       <Typography variant="h5" gutterBottom>
+//         Chỉnh sửa chương trình khuyến mại #{discountId}
+//       </Typography>
+//       <Paper sx={{ p: 3 }}>
+//         <Box component="form" onSubmit={handleSubmit}>
+//           <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+//             <TextField
+//               label="Ngày bắt đầu"
+//               name="dateStart"
+//               type="date"
+//               value={discount.dateStart}
+//               onChange={handleDateChange}
+//               InputLabelProps={{ shrink: true }}
+//               required
+//               fullWidth
+//             />
+//             <TextField
+//               label="Ngày kết thúc"
+//               name="dateEnd"
+//               type="date"
+//               value={discount.dateEnd}
+//               onChange={handleDateChange}
+//               InputLabelProps={{ shrink: true }}
+//               required
+//               fullWidth
+//             />
+//           </Box>
+
+//           {error && (
+//             <Alert severity="error" sx={{ mb: 2 }}>
+//               {error}
+//             </Alert>
+//           )}
+
+//           <Autocomplete
+//             multiple
+//             options={products}
+//             getOptionLabel={(option) => `${option.id} - ${option.name}`}
+//             filterOptions={(options, { inputValue }) => {
+//               const input = inputValue.toLowerCase();
+//               return options.filter(
+//                 (option) =>
+//                   option.name.toLowerCase().includes(input) ||
+//                   option.id.toString().includes(input)
+//               );
+//             }}
+//             renderOption={(props, option) => (
+//               <li {...props}>
+//                 {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
+//               </li>
+//             )}
+//             onChange={handleProductChange}
+//             value={discount.discountProducts}
+//             renderInput={(params) => (
+//               <TextField
+//                 {...params}
+//                 label="Chọn sản phẩm"
+//                 placeholder="Gõ ID hoặc tên sản phẩm"
+//                 margin="normal"
+//               />
+//             )}
+//             fullWidth
+//           />
+
+//           {discount.discountProducts.length > 0 && (
+//             <TableContainer sx={{ mt: 2 }}>
+//               <Table>
+//                 <TableHead>
+//                   <TableRow>
+//                     <TableCell>ID</TableCell>
+//                     <TableCell>Tên sản phẩm</TableCell>
+//                     <TableCell>Tồn kho</TableCell>
+//                     <TableCell>Giá gốc (VNĐ)</TableCell>
+//                     <TableCell>Giá khuyến mại (VNĐ)</TableCell>
+//                     <TableCell>Số lượng khuyến mại</TableCell>
+//                     <TableCell>Hành động</TableCell>
+//                   </TableRow>
+//                 </TableHead>
+//                 <TableBody>
+//                   {discount.discountProducts.map((product) => (
+//                     <TableRow key={product.id}>
+//                       <TableCell>{product.id}</TableCell>
+//                       <TableCell>{product.name}</TableCell>
+//                       <TableCell>{product.stock}</TableCell>
+//                       <TableCell>{product.originalPrice.toLocaleString()}</TableCell>
+//                       <TableCell>
+//                         <TextField
+//                           type="number"
+//                           value={product.salePrice}
+//                           onChange={(e) =>
+//                             handleProductDetailChange(product.id, 'salePrice', e.target.value)
+//                           }
+//                           size="small"
+//                           required
+//                           inputProps={{ min: 0, max: product.originalPrice }}
+//                         />
+//                       </TableCell>
+//                       <TableCell>
+//                         <TextField
+//                           type="number"
+//                           value={product.quantity}
+//                           onChange={(e) =>
+//                             handleProductDetailChange(product.id, 'quantity', e.target.value)
+//                           }
+//                           size="small"
+//                           required
+//                           inputProps={{ min: 0, max: product.stock }}
+//                         />
+//                       </TableCell>
+//                       <TableCell>
+//                         <Button
+//                           variant="contained"
+//                           color="error"
+//                           size="small"
+//                           onClick={() => handleRemoveProduct(product.id)}
+//                         >
+//                           Xóa
+//                         </Button>
+//                       </TableCell>
+//                     </TableRow>
+//                   ))}
+//                 </TableBody>
+//               </Table>
+//             </TableContainer>
+//           )}
+
+//           <Box sx={{ mt: 3 }}>
+//             <Button
+//               type="submit"
+//               variant="contained"
+//               color="primary"
+//               sx={{ mr: 2 }}
+//               disabled={discount.discountProducts.length === 0}
+//             >
+//               Lưu
+//             </Button>
+//             <Button variant="outlined" onClick={() => navigate('/admin/discount')}>
+//               Hủy
+//             </Button>
+//           </Box>
+//         </Box>
+//       </Paper>
+//     </Box>
+//   );
+// }
+
+// export default EditDiscount;
