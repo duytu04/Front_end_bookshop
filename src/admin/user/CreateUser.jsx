@@ -1,5 +1,463 @@
+
+
+// import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+// import {
+//   Box,
+//   Paper,
+//   Typography,
+//   TextField,
+//   Button,
+//   Alert,
+//   MenuItem,
+//   Select,
+//   InputLabel,
+//   FormControl,
+//   Grid,
+// } from '@mui/material';
+
+// // Danh sách vai trò có thể chọn
+// const roleOptions = ['Admin', 'User', 'Moderator'];
+
+// function CreateUser() {
+//   const navigate = useNavigate();
+
+//   // State cho thông tin người dùng
+//   const [user, setUser] = useState({
+//     name: '',
+//     email: '',
+//     phoneNumber: '',
+//     address: '',
+//     birthDay: '',
+//     gender: '',
+//     avata: '',
+//     roles: [],
+//   });
+//   const [error, setError] = useState('');
+//   const [loading, setLoading] = useState(false);
+
+//   // Base URL for your backend API (replace with your actual backend URL)
+//   const API_URL = 'http://localhost:6868/api/user';
+
+//   // Xử lý thay đổi input
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setUser((prev) => ({ ...prev, [name]: value }));
+//     setError('');
+//   };
+
+//   // Xử lý thay đổi roles
+//   const handleRolesChange = (e) => {
+//     setUser((prev) => ({ ...prev, roles: e.target.value }));
+//     setError('');
+//   };
+
+//   // Kiểm tra dữ liệu hợp lệ
+//   const isValid = () => {
+//     return (
+//       user.name.trim() !== '' &&
+//       user.email.trim() !== '' &&
+//       user.phoneNumber.trim() !== '' &&
+//       user.address.trim() !== '' &&
+//       user.birthDay !== '' &&
+//       user.gender !== '' &&
+//       user.roles.length > 0
+//     );
+//   };
+
+//   // Xử lý submit form
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (!isValid()) {
+//       setError('Vui lòng điền đầy đủ thông tin');
+//       return;
+//     }
+
+//     const userData = {
+//       name: user.name,
+//       email: user.email,
+//       phoneNumber: user.phoneNumber,
+//       address: user.address,
+//       birthDay: user.birthDay,
+//       gender: user.gender,
+//       avata: user.avata || 'https://via.placeholder.com/40',
+//       roles: user.roles,
+//     };
+
+//     setLoading(true);
+//     try {
+//       await axios.post(API_URL, userData);
+//       alert('Thêm người dùng thành công');
+//       navigate('/admin/user');
+//     } catch (err) {
+//       setError(
+//         err.response?.data?.message || 'Không thể thêm người dùng. Vui lòng thử lại.'
+//       );
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+//       <Typography
+//         variant="h5"
+//         gutterBottom
+//         sx={{
+//           fontWeight: 'bold',
+//           color: '#1a2820',
+//           letterSpacing: '0.5px',
+//         }}
+//       >
+//         THÊM NGƯỜI DÙNG MỚI
+//       </Typography>
+//       <Paper
+//         sx={{
+//           p: 3,
+//           borderRadius: '12px',
+//           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+//         }}
+//       >
+//         <Box component="form" onSubmit={handleSubmit}>
+//           {/* Hiển thị lỗi nếu có */}
+//           {error && (
+//             <Alert
+//               severity="error"
+//               sx={{
+//                 mb: 2,
+//                 borderRadius: '8px',
+//               }}
+//             >
+//               {error}
+//             </Alert>
+//           )}
+
+//           <Grid container spacing={2}>
+//             {/* Cột trái */}
+//             <Grid item xs={12} md={6}>
+//               <TextField
+//                 fullWidth
+//                 label="Tên"
+//                 name="name"
+//                 value={user.name}
+//                 onChange={handleChange}
+//                 required
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//               <TextField
+//                 fullWidth
+//                 label="Email"
+//                 name="email"
+//                 type="email"
+//                 value={user.email}
+//                 onChange={handleChange}
+//                 required
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//               <TextField
+//                 fullWidth
+//                 label="Số điện thoại"
+//                 name="phoneNumber"
+//                 value={user.phoneNumber}
+//                 onChange={handleChange}
+//                 required
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//               <TextField
+//                 fullWidth
+//                 label="Ngày sinh"
+//                 name="birthDay"
+//                 type="date"
+//                 value={user.birthDay}
+//                 onChange={handleChange}
+//                 InputLabelProps={{ shrink: true }}
+//                 required
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//             </Grid>
+//             {/* Cột phải */}
+//             <Grid item xs={12} md={6}>
+//               <TextField
+//                 fullWidth
+//                 label="Địa chỉ"
+//                 name="address"
+//                 value={user.address}
+//                 onChange={handleChange}
+//                 required
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//               <FormControl
+//                 fullWidth
+//                 sx={{ mb: 2 }}
+//                 required
+//                 disabled={loading}
+//               >
+//                 <InputLabel
+//                   sx={{
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                     '&.Mui-focused': {
+//                       color: 'primary.main',
+//                     },
+//                   }}
+//                 >
+//                   Giới tính
+//                 </InputLabel>
+//                 <Select
+//                   name="gender"
+//                   value={user.gender}
+//                   onChange={handleChange}
+//                   sx={{
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover .MuiOutlinedInput-notchedOutline': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   }}
+//                 >
+//                   <MenuItem value="Male">Nam</MenuItem>
+//                   <MenuItem value="Female">Nữ</MenuItem>
+//                   <MenuItem value="Other">Khác</MenuItem>
+//                 </Select>
+//               </FormControl>
+//               <TextField
+//                 fullWidth
+//                 label="URL Avatar"
+//                 name="avata"
+//                 value={user.avata}
+//                 onChange={handleChange}
+//                 disabled={loading}
+//                 sx={{
+//                   mb: 2,
+//                   '& .MuiOutlinedInput-root': {
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover fieldset': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused fieldset': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   },
+//                   '& .MuiInputLabel-root': {
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                   },
+//                   '& .MuiInputLabel-root.Mui-focused': {
+//                     color: 'primary.main',
+//                   },
+//                 }}
+//               />
+//               <FormControl
+//                 fullWidth
+//                 sx={{ mb: 2 }}
+//                 required
+//                 disabled={loading}
+//               >
+//                 <InputLabel
+//                   sx={{
+//                     color: 'text.secondary',
+//                     fontWeight: 'medium',
+//                     '&.Mui-focused': {
+//                       color: 'primary.main',
+//                     },
+//                   }}
+//                 >
+//                   Vai trò
+//                 </InputLabel>
+//                 <Select
+//                   multiple
+//                   name="roles"
+//                   value={user.roles}
+//                   onChange={handleRolesChange}
+//                   sx={{
+//                     borderRadius: '12px',
+//                     backgroundColor: 'background.paper',
+//                     '&:hover .MuiOutlinedInput-notchedOutline': {
+//                       borderColor: 'primary.main',
+//                     },
+//                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+//                       borderColor: 'primary.main',
+//                       boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+//                     },
+//                   }}
+//                 >
+//                   {roleOptions.map((role) => (
+//                     <MenuItem key={role} value={role}>
+//                       {role}
+//                     </MenuItem>
+//                   ))}
+//                 </Select>
+//               </FormControl>
+//             </Grid>
+//           </Grid>
+
+//           {/* Nút submit */}
+//           <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+//             <Button
+//               type="submit"
+//               variant="contained"
+//               color="primary"
+//               disabled={loading}
+//               sx={{
+//                 borderRadius: '20px',
+//                 textTransform: 'none',
+//                 fontWeight: 'medium',
+//                 px: 3,
+//                 py: 1,
+//                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+//                 '&:hover': {
+//                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+//                   bgcolor: 'primary.dark',
+//                 },
+//               }}
+//             >
+//               {loading ? 'Đang xử lý...' : 'Thêm'}
+//             </Button>
+//             <Button
+//               variant="outlined"
+//               onClick={() => navigate('/admin/user')}
+//               disabled={loading}
+//               sx={{
+//                 borderRadius: '20px',
+//                 textTransform: 'none',
+//                 fontWeight: 'medium',
+//                 px: 3,
+//                 py: 1,
+//                 borderColor: 'grey.400',
+//                 color: 'text.primary',
+//                 '&:hover': {
+//                   borderColor: 'primary.main',
+//                   bgcolor: 'grey.50',
+//                 },
+//               }}
+//             >
+//               Hủy
+//             </Button>
+//           </Box>
+//         </Box>
+//       </Paper>
+//     </Box>
+//   );
+// }
+
+// export default CreateUser;
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   Box,
   Paper,
@@ -11,6 +469,7 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Grid,
 } from '@mui/material';
 
 // Danh sách vai trò có thể chọn
@@ -26,16 +485,23 @@ function CreateUser() {
     phoneNumber: '',
     address: '',
     birthDay: '',
-    gender: '',
+    gender: true, // Default to true (Nam)
     avata: '',
     roles: [],
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Base URL for your backend API
+  const API_URL = 'http://localhost:6868/api/user';
 
   // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
+    setUser((prev) => ({
+      ...prev,
+      [name]: name === 'gender' ? value === 'true' : value,
+    }));
     setError('');
   };
 
@@ -47,23 +513,30 @@ function CreateUser() {
 
   // Kiểm tra dữ liệu hợp lệ
   const isValid = () => {
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if (!emailRegex.test(user.email)) {
+      setError('Email không hợp lệ');
+      return false;
+    }
+    if (!/^\d{10}$/.test(user.phoneNumber)) {
+      setError('Số điện thoại phải có 10 chữ số');
+      return false;
+    }
     return (
       user.name.trim() !== '' &&
       user.email.trim() !== '' &&
       user.phoneNumber.trim() !== '' &&
       user.address.trim() !== '' &&
       user.birthDay !== '' &&
-      user.gender !== '' &&
       user.roles.length > 0
     );
   };
 
   // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValid()) {
-      setError('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
@@ -73,121 +546,368 @@ function CreateUser() {
       phoneNumber: user.phoneNumber,
       address: user.address,
       birthDay: user.birthDay,
-      gender: user.gender,
-      avata: user.avata || 'https://via.placeholder.com/40', // Giá trị mặc định nếu không nhập
+      gender: user.gender, // Boolean: true (Nam), false (Nữ)
+      avata: user.avata || 'https://via.placeholder.com/40',
       roles: user.roles,
     };
-    console.log('Thêm user:', userData);
-    navigate('/admin/users');
+
+    setLoading(true);
+    try {
+      await axios.post(API_URL, userData);
+      alert('Thêm người dùng thành công');
+      navigate('/admin/user');
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 'Không thể thêm người dùng. Vui lòng thử lại.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box sx={{ mt: 8 }}>
-      <Typography variant="h5" gutterBottom>
-        Thêm người dùng mới
+    <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          color: '#1a2820',
+          letterSpacing: '0.5px',
+        }}
+      >
+        THÊM NGƯỜI DÙNG MỚI
       </Typography>
-      <Paper sx={{ p: 3 }}>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        }}
+      >
         <Box component="form" onSubmit={handleSubmit}>
           {/* Hiển thị lỗi nếu có */}
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2,
+                borderRadius: '8px',
+              }}
+            >
               {error}
             </Alert>
           )}
 
-          {/* Các trường nhập liệu */}
-          <TextField
-            fullWidth
-            label="Tên"
-            name="name"
-            value={user.name}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            value={user.email}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Số điện thoại"
-            name="phoneNumber"
-            value={user.phoneNumber}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Địa chỉ"
-            name="address"
-            value={user.address}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Ngày sinh"
-            name="birthDay"
-            type="date"
-            value={user.birthDay}
-            onChange={handleChange}
-            InputLabelProps={{ shrink: true }}
-            margin="normal"
-            required
-          />
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel>Giới tính</InputLabel>
-            <Select
-              name="gender"
-              value={user.gender}
-              onChange={handleChange}
-              label="Giới tính"
-            >
-              <MenuItem value="Male">Nam</MenuItem>
-              <MenuItem value="Female">Nữ</MenuItem>
-              <MenuItem value="Other">Khác</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            fullWidth
-            label="URL Avatar"
-            name="avata"
-            value={user.avata}
-            onChange={handleChange}
-            margin="normal"
-          />
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel>Vai trò</InputLabel>
-            <Select
-              multiple
-              name="roles"
-              value={user.roles}
-              onChange={handleRolesChange}
-              label="Vai trò"
-            >
-              {roleOptions.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Grid container spacing={2}>
+            {/* Cột trái */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Tên"
+                name="name"
+                value={user.name}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                type="email"
+                value={user.email}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Số điện thoại"
+                name="phoneNumber"
+                value={user.phoneNumber}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Ngày sinh"
+                name="birthDay"
+                type="date"
+                value={user.birthDay}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+                required
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+            </Grid>
+            {/* Cột phải */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Địa chỉ"
+                name="address"
+                value={user.address}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+              <FormControl
+                fullWidth
+                sx={{ mb: 2 }}
+                required
+                disabled={loading}
+              >
+                <InputLabel
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                    '&.Mui-focused': {
+                      color: 'primary.main',
+                    },
+                  }}
+                >
+                  Giới tính
+                </InputLabel>
+                <Select
+                  name="gender"
+                  value={user.gender.toString()} // Convert boolean to string for Select
+                  onChange={handleChange}
+                  sx={{
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  }}
+                >
+                  <MenuItem value="true">Nam</MenuItem>
+                  <MenuItem value="false">Nữ</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="URL Avatar"
+                name="avata"
+                value={user.avata}
+                onChange={handleChange}
+                disabled={loading}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+              <FormControl
+                fullWidth
+                sx={{ mb: 2 }}
+                required
+                disabled={loading}
+              >
+                <InputLabel
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                    '&.Mui-focused': {
+                      color: 'primary.main',
+                    },
+                  }}
+                >
+                  Vai trò
+                </InputLabel>
+                <Select
+                  multiple
+                  name="roles"
+                  value={user.roles}
+                  onChange={handleRolesChange}
+                  sx={{
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  }}
+                >
+                  {roleOptions.map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
 
           {/* Nút submit */}
-          <Box sx={{ mt: 3 }}>
-            <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
-              Thêm
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={loading}
+              sx={{
+                borderRadius: '20px',
+                textTransform: 'none',
+                fontWeight: 'medium',
+                px: 3,
+                py: 1,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  bgcolor: 'primary.dark',
+                },
+              }}
+            >
+              {loading ? 'Đang xử lý...' : 'Thêm'}
             </Button>
-            <Button variant="outlined" onClick={() => navigate('/admin/users')}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/admin/user')}
+              disabled={loading}
+              sx={{
+                borderRadius: '20px',
+                textTransform: 'none',
+                fontWeight: 'medium',
+                px: 3,
+                py: 1,
+                borderColor: 'grey.400',
+                color: 'text.primary',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: 'grey.50',
+                },
+              }}
+            >
               Hủy
             </Button>
           </Box>
